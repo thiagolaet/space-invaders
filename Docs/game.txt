@@ -1,0 +1,38 @@
+Space Invaders
+
+1 - Menu
+    Ao abrir o jogo, aparecem quatro botoes. Play / Dificuldade / Ranking / Quit
+    Em qualquer instancia do jogo, ao apertar esc, retorna-se ao menu
+    Ao clicar em play entra no jogo
+    Ao clicar em dificuldade abre uma janela com tres botoes. Facil / Medio / Dificil
+        dificuldade é uma variavel global 1 - Facil / 2 - Medio / 3 - Dificil
+        será usada em varios momentos do jogo como multiplicador ou divisor
+
+    
+    Ao clicar em quit, fecha o jogo
+
+2 - Jogo
+    Composto por uma nave que se move na horizontal, (bate na parede e não passa), 
+    nave atira para cima, sem limite de tiros,
+    variavel que mede o tempo de reload de um tiro para o outro 
+    se o tiro acertar o monstro ele morre, tiro some se chegar no topo
+    monstros em matrizes que se movem horizontalmente
+    aleatoriamente monstros atiram 
+    quando matar todos os monstros, passa de fase e aumenta a dificuldade
+    aleatoriamente aparece um disco voador que se matar, ganha pontos extras (bonus)
+
+3 - Game objects
+    Player
+    Monstros
+    Tiros (player e monstros)
+    Nave bonus
+
+P/ 31/05 CONTROLE DE FPS E TIROS
+guardar frame rate antes da otimização e depois
+
+OTIMIZAÇÂO DE TIROS: 
+    - só testa colisoes caso o tiro esteja dentro da area da matrizes (acima do monstro mais baixo e abaixo do monstro mais acima)
+    - inverter espaço de busca, ou seja, percorrer a matris de forma invertida para checar os inimigos mais a baixo primeiro
+
+Frame-Rate: 
+    Cria um cronometro e de um em um segundo checa quantos frames passaram
