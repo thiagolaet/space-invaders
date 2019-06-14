@@ -3,6 +3,7 @@ from PPlay.sprite import *
 from PPlay.gameimage import *
 from PPlay.gameobject import *
 from PPlay.collision import *
+from PPlay.animation import *
 import random
 
 #main --------------------------------------------------------------------------------------------------------------
@@ -20,6 +21,11 @@ dificuldade = 2
 velocidadeInimigos = 0.2
 nivel = 1
 pontuacao = 0
+monstrosVivos = 0
+tempoPassado = 0
+vidas = 0
+morto = False
+contadorRenascer = 0
 
 #---------------------------------------------------------------------------------------------------------------
 
@@ -71,12 +77,14 @@ def menu(mouse, janela, play_menu, dificuldade_menu, ranking_menu, sair):
 
 #jogo --------------------------------------------------------------------------------------------------------------
 
-jogador = Sprite("sprites/jogo_jogador.png")
+jogador = Sprite("sprites/jogo_jogador.png",1)
 jogador.set_position(janela.width/2 - jogador.width/2,janela.height-50)
 
 #tiros ------------------------------------------------------------------------------------
 ultimoTiro = 1
 listaTiros = []
+listaTirosInimigos = []
+
 
 class tiro():
     def __init__(self):
@@ -100,6 +108,8 @@ def moverTiros(listaTiros):
 
 existemInimigos = 0
 
+contadorTirosMonstro = 0
+
 def checarExistemInimigos(matrizInimigos):
     existemInimigos = 0
     for i in range(int(janela.height/80)):
@@ -110,7 +120,6 @@ def checarExistemInimigos(matrizInimigos):
         
 #contador que impede que os inimigos avancem muitas vezes 
 contadorLateral = 0
-
 
 matrizInimigos = []
 
@@ -161,19 +170,69 @@ def checarColisao():
     global pontuacao
     global nivel
     global dificuldade
+    global monstrosVivos
     for i in range(int(janela.height/80)):
         for j in range(int(janela.width/80)):
             for k in range(len(listaTiros)):
                 if(matrizInimigos[i][j] != None):
                     if(Collision.collided(listaTiros[k].sprite, matrizInimigos[i][j])):
-                        pontuacao += 10 * dificuldade * nivel
+                        pontuacao += 10 * dificuldade * nivel / (0.5 * tempoPassado)
                         matrizInimigos[i][j] = None
                         listaTiros.pop(k)
+                        monstrosVivos -= 1
     return matrizInimigos
+
+def checarColisaoTiroPlayer():
+    global vidas
+    global jogador
+    global morto
+    for i in range(len(listaTirosInimigos)):
+        if Collision.collided(listaTirosInimigos[i], jogador):
+            vidas -= 1
+            listaTirosInimigos.pop(i)
+            morto = True
+            break
+
 
 def novaVelocidade():
     global velocidadeInimigos
     velocidadeInimigos = nivel * dificuldade *0.2
+
+def atira(inimigo):
+    tiro = Sprite("sprites/jogo_tiro.png")
+    tiro.set_position(inimigo.x, inimigo.y)
+    listaTirosInimigos.append(tiro)
+
+def moverTirosInimigos():
+    for i in range(len(listaTirosInimigos)):
+        listaTirosInimigos[i].move_y(-janela.delta_time() * speed_per_SECOND *-5)
+        if(listaTirosInimigos[i].y >= janela.height):
+            listaTirosInimigos.pop(i)
+            break 
+
+def contarMonstrosVivos():
+    global monstrosVivos
+    for i in range(len(matrizInimigos)):
+        for j in range(len(matrizInimigos[0])):
+            if matrizInimigos[i][j] != None:
+                monstrosVivos += 1
+    return monstrosVivos
+
+def inimigoAtira():
+    global monstrosVivos
+    selecionado = random.randint(0, monstrosVivos)
+    contadorMonstros = 0
+    for i in range(len(matrizInimigos)):
+        for j in range(len(matrizInimigos[0])):
+            if matrizInimigos[i][j] != None:
+                contadorMonstros += 1
+                if contadorMonstros == selecionado:
+                    atira(matrizInimigos[i][j])
+
+def desenharTirosInimigos():
+    for i in range(len(listaTirosInimigos)):
+        listaTirosInimigos[i].draw()
+
 #---------------------------------------------------------------
 
 def TelaJogo( dificuldade):
@@ -183,6 +242,19 @@ def TelaJogo( dificuldade):
     global contadorLateral
     global nivel
     global pontuacao
+    global contadorTirosMonstro
+    global tempoPassado
+    global monstrosVivos
+    global contadorRenascer
+    global vidas
+    global morto
+    
+    contadorTirosMonstro += janela.delta_time()
+    if contadorTirosMonstro > 1.5:
+        inimigoAtira()
+        contadorTirosMonstro = 0
+    moverTirosInimigos()
+    tempoPassado += janela.delta_time()
     janela.set_background_color((0, 0, 0))
     jogador.draw()
     ultimoTiro += janela.delta_time()
@@ -191,6 +263,9 @@ def TelaJogo( dificuldade):
     if existemInimigos == 0:
         matrizInimigos = gerarInimigos()
         existemInimigos = 1
+        monstrosVivos = contarMonstrosVivos()
+        vidas = 6 - dificuldade
+
     moverInimigos(matrizInimigos, velocidadeInimigos)
     if ultimoTiro >= 0.3:
         if(teclado.key_pressed("UP")):
@@ -201,6 +276,7 @@ def TelaJogo( dificuldade):
     jogador.move_key_x(10 * janela.delta_time() * frame_per_SECOND)
     if(teclado.key_pressed("ESC")):
         pontuacao = 0
+        tempoPassado = 0
         listaTiros.clear()
         existemInimigos = 0
         nivel = 1
@@ -220,7 +296,10 @@ def TelaJogo( dificuldade):
         novaVelocidade()
         existemInimigos = 0
     checarColisao()
-    janela.draw_text("Pontos: " + str(pontuacao), 400, 5, size=28, color=(255,255,255), font_name="Minecraft")
+    desenharTirosInimigos()
+    checarColisaoTiroPlayer()
+    janela.draw_text("Vidas: " + str(vidas), 150, 5, size=28, color=(255,255,255), font_name="Minecraft")
+    janela.draw_text("Pontos: " + str(int(pontuacao)), 450, 5, size=28, color=(255,255,255), font_name="Minecraft")
     janela.draw_text("Level: " + str(nivel), 280, 5, size=28, color=(255,255,255), font_name="Minecraft")
     return 2;
 
@@ -244,7 +323,7 @@ dificuldadePlayHover.set_position(janela.width/2 - dificuldadePlay.width/2, jane
 
 dificuldadePasso = 203
 
-#1 = Facil / 2 = Medio / 3 = Dificil
+#1 = Facil 2 = Medio / 3 = Dificil
 
 def TelaDificuldade():
     janela.set_background_color((0, 0, 0))
