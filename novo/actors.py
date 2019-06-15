@@ -58,14 +58,15 @@ class Jogador(object):
         self._draw()
 
 class Inimigos(object):
-    def __init__(self, janela):
+    def __init__(self, janela, nivel):
         self.janela = janela
         self.matrizInimigos = []
         self.quantidadeColunas = 5 + globals.DIFICULDADE
         self.quantidadeLinhas = 5 + globals.DIFICULDADE
         self.cronometroAvancar = 0
+        self.nivel = nivel
         self.quantidadeInimigos = self.quantidadeColunas * self.quantidadeLinhas
-        self.velocidadeInimigos = (5 * globals.DIFICULDADE)/self.quantidadeInimigos
+        self.velocidadeInimigos = (5 * globals.DIFICULDADE * self.janela.delta_time())/self.quantidadeInimigos
         self.direcaoInimigos = 1
         self.spawn()
 
@@ -80,7 +81,7 @@ class Inimigos(object):
     def moverInimigos(self):
         #Atualizando velocidade dos inimigos
         if self.quantidadeInimigos > 0:
-            self.velocidadeInimigos = (5 * globals.DIFICULDADE * self.direcaoInimigos)/self.quantidadeInimigos
+            self.velocidadeInimigos = ((self.nivel + 10) * globals.DIFICULDADE * self.direcaoInimigos)/(self.quantidadeInimigos / self.nivel)
         for i in range(len(self.matrizInimigos)):
             for j in range(len(self.matrizInimigos[i])):
                 self.matrizInimigos[i][j].move_x(self.janela.delta_time() * globals.FRAME_PER_SECOND * globals.DIFICULDADE * self.velocidadeInimigos)
@@ -98,7 +99,7 @@ class Inimigos(object):
                 self.direcaoInimigos = -self.direcaoInimigos
                 for i in range(len(self.matrizInimigos)):
                     for j in range(len(self.matrizInimigos[i])):
-                        self.matrizInimigos[i][j].y += 10
+                        self.matrizInimigos[i][j].y += 20
                 self.cronometroAvancar = 0
         else: self.cronometroAvancar += self.janela.delta_time()
 
@@ -108,6 +109,8 @@ class Inimigos(object):
                 self.matrizInimigos[i][j].draw()
     
     def run(self):
+        if self.quantidadeInimigos == 0:
+            self.passarNivel()
         self.moverInimigos()
         self.avancarInimigos()
         self._draw()
