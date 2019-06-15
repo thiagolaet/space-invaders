@@ -19,9 +19,8 @@ fpsAtual = 0
 FPS = 0
 dificuldade = 2
 velocidadeInimigos = 0.2
-nivel = 1
+nivel = 0
 pontuacao = 0
-monstrosVivos = 0
 tempoPassado = 0
 vidas = 0
 morto = False
@@ -110,13 +109,13 @@ existemInimigos = 0
 
 contadorTirosMonstro = 0
 
-def checarExistemInimigos(matrizInimigos):
-    existemInimigos = 0
+def contadorInimigos(matrizInimigos):
+    inimigosVivos = 0
     for i in range(int(janela.height/80)):
         for j in range(int(janela.width/80)):
             if matrizInimigos[i][j] != None:
-                return 0
-    return 1
+                inimigosVivos += 1
+    return inimigosVivos
         
 #contador que impede que os inimigos avancem muitas vezes 
 contadorLateral = 0
@@ -170,7 +169,7 @@ def checarColisao():
     global pontuacao
     global nivel
     global dificuldade
-    global monstrosVivos
+    global existemInimigos
     for i in range(int(janela.height/80)):
         for j in range(int(janela.width/80)):
             for k in range(len(listaTiros)):
@@ -179,7 +178,8 @@ def checarColisao():
                         pontuacao += 10 * dificuldade * nivel / (0.5 * tempoPassado)
                         matrizInimigos[i][j] = None
                         listaTiros.pop(k)
-                        monstrosVivos -= 1
+                        existemInimigos -= 1
+                        print(existemInimigos)
     return matrizInimigos
 
 def checarColisaoTiroPlayer():
@@ -210,17 +210,9 @@ def moverTirosInimigos():
             listaTirosInimigos.pop(i)
             break 
 
-def contarMonstrosVivos():
-    global monstrosVivos
-    for i in range(len(matrizInimigos)):
-        for j in range(len(matrizInimigos[0])):
-            if matrizInimigos[i][j] != None:
-                monstrosVivos += 1
-    return monstrosVivos
-
 def inimigoAtira():
-    global monstrosVivos
-    selecionado = random.randint(0, monstrosVivos)
+    global existemInimigos
+    selecionado = random.randint(0, existemInimigos)
     contadorMonstros = 0
     for i in range(len(matrizInimigos)):
         for j in range(len(matrizInimigos[0])):
@@ -235,19 +227,21 @@ def desenharTirosInimigos():
 
 #---------------------------------------------------------------
 
+gameOver = Sprite("sprites/game_over.png")
+gameOver.set_position(janela.width/2 - gameOver.width/2, janela.height/2 - gameOver.height/2)
+
 def TelaJogo( dificuldade):
     global ultimoTiro
-    global existemInimigos
     global velocidadeInimigos
     global contadorLateral
     global nivel
     global pontuacao
     global contadorTirosMonstro
     global tempoPassado
-    global monstrosVivos
     global contadorRenascer
     global vidas
     global morto
+    global existemInimigos
     
     contadorTirosMonstro += janela.delta_time()
     if contadorTirosMonstro > 1.5:
@@ -260,11 +254,11 @@ def TelaJogo( dificuldade):
     ultimoTiro += janela.delta_time()
     contadorLateral += janela.delta_time()
     global matrizInimigos
-    if existemInimigos == 0:
+    if existemInimigos <= 0:
         matrizInimigos = gerarInimigos()
-        existemInimigos = 1
-        monstrosVivos = contarMonstrosVivos()
-        vidas = 6 - dificuldade
+        existemInimigos = contadorInimigos(matrizInimigos)
+        nivel += 1
+        novaVelocidade()
 
     moverInimigos(matrizInimigos, velocidadeInimigos)
     if ultimoTiro >= 0.3:
@@ -279,8 +273,9 @@ def TelaJogo( dificuldade):
         tempoPassado = 0
         listaTiros.clear()
         existemInimigos = 0
-        nivel = 1
-        return 1;
+        nivel = 0
+        vidas = 6 - dificuldade
+        return 1
     if(jogador.x < 0):
         jogador.set_position(0, janela.height-50)
     if(jogador.x + jogador.width > janela.width):
@@ -291,10 +286,6 @@ def TelaJogo( dificuldade):
         avancarInimigos(matrizInimigos)
         contadorLateral = 0
     desenharInimigos(matrizInimigos)
-    if checarExistemInimigos(matrizInimigos):
-        nivel += 1
-        novaVelocidade()
-        existemInimigos = 0
     checarColisao()
     desenharTirosInimigos()
     checarColisaoTiroPlayer()
@@ -381,6 +372,9 @@ def TelaRanking():
     return 4;
 
 #--------------------------------------------------------------------------------------------------------------------
+
+vidas = 6 - dificuldade
+
 
 while True:
     tempoFPS += janela.delta_time()
