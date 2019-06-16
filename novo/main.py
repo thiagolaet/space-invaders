@@ -27,4 +27,5 @@ while globals.GAME_STATE != 5:
     elif globals.GAME_STATE == 4:
         ranking.run()
 
+
     janela.update()
