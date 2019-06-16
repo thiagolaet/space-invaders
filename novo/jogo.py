@@ -63,6 +63,7 @@ class Jogar(object):
     def gameOver(self):
         if(self.teclado.key_pressed("ESC")):
             globals.GAME_STATE = 1
+            self.vivo = 1
         self.gameOverImg.draw()
         self.janela.draw_text(str(self.pontuacao) + " Pontos", self.janela.width/2 - 80, self.janela.height/2 + self.gameOverImg.height, size=40, color=(255,255,255), font_name="Minecraft")
 
