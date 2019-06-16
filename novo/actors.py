@@ -73,8 +73,7 @@ class Inimigos(object):
         self.listaTiros = []
         self.cronometroTiro = 0
         self.cronometroAvancar = 0
-        self.velocidadeTiro = 70 / self.quantidadeInimigos
-
+        self.velocidadeTiro = 2 + (70 / self.quantidadeInimigos) * 0.2 + self.nivel * 0.5
         self.spawn()
 
     def spawn(self):
@@ -109,7 +108,7 @@ class Inimigos(object):
         else: self.cronometroTiro += self.janela.delta_time()
 
     def atualizarTiros(self):
-        self.velocidadeTiro = 4 - (self.quantidadeInimigos * 0.1) 
+        self.velocidadeTiro = 2 + (70 / self.quantidadeInimigos) * 0.2 + self.nivel * 0.5
         for i in range(len(self.listaTiros)):
             self.listaTiros[i].move_y(self.janela.delta_time() * globals.FRAME_PER_SECOND * self.velocidadeTiro)
             if(self.listaTiros[i].y <= 0):
