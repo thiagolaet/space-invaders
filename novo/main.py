@@ -24,8 +24,8 @@ while globals.GAME_STATE != 5:
         jogo.run()
     elif globals.GAME_STATE == 3:
         dificuldade.run()
+        jogo = Jogar(janela)
     elif globals.GAME_STATE == 4:
         ranking.run()
-
 
     janela.update()

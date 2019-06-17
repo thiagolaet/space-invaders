@@ -77,7 +77,7 @@ class Jogar(object):
             globals.GAME_STATE = 1
             self.reset()
         self.gameOverImg.draw()
-        self.janela.draw_text(str(int(self.pontuacao)) + " Pontos", self.janela.width/2 - 80, self.janela.height/2 + self.gameOverImg.height, size=40, color=(255,255,255), font_name="Minecraft")
+        self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), self.janela.width/2 - 120, self.janela.height/2 + self.gameOverImg.height, size=40, color=(255,255,255), font_name="Minecraft")
 
     def run(self):
         self.cronometroFPS += self.janela.delta_time()

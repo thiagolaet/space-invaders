@@ -15,7 +15,6 @@ class Jogador(object):
         self.cronometroTiros = 0
         self.vidas = 6 - globals.DIFICULDADE
         self.set_pos()
-        self._draw()
 
     def set_pos(self):
         self.player.set_position(self.janela.width/2 - self.player.width/2, self.janela.height - 50)
