@@ -290,7 +290,7 @@ def TelaJogo( dificuldade):
     desenharTirosInimigos()
     checarColisaoTiroPlayer()
     janela.draw_text("Vidas: " + str(vidas), 150, 5, size=28, color=(255,255,255), font_name="Minecraft")
-    janela.draw_text("Pontos: " + str(int(pontuacao)), 450, 5, size=28, color=(255,255,255), font_name="Minecraft")
+    janela.draw_text("Pontos: " + str(int(pontuacao)), 100, 5, size=22, color=(255,255,255), font_name="Minecraft")
     janela.draw_text("Level: " + str(nivel), 280, 5, size=28, color=(255,255,255), font_name="Minecraft")
     return 2;
 

@@ -42,7 +42,7 @@ class Jogador(object):
         self.player.move_key_x(10 * self.janela.delta_time() * globals.FRAME_PER_SECOND)
         
         #Atirar
-        if(self.cronometroTiros >= 0.6):
+        if(self.cronometroTiros >= 0.5):
             if(self.teclado.key_pressed("UP")):
                 self.atirar()
                 self.cronometroTiros = 0
@@ -87,7 +87,7 @@ class Inimigos(object):
     def moverInimigos(self):
         #Atualizando velocidade dos inimigos
         if self.quantidadeInimigos > 0:
-            self.velocidadeInimigos =  self.janela.delta_time() * globals.DIFICULDADE * self.direcaoInimigos * self.nivel + self.direcaoInimigos * 3/self.quantidadeInimigos
+            self.velocidadeInimigos =  self.janela.delta_time() * self.direcaoInimigos + self.direcaoInimigos * globals.DIFICULDADE/2 + self.direcaoInimigos * 3/self.quantidadeInimigos
         for i in range(len(self.matrizInimigos)):
             for j in range(len(self.matrizInimigos[i])):
                 self.matrizInimigos[i][j].move_x(self.velocidadeInimigos)

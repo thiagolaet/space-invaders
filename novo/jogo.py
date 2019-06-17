@@ -11,6 +11,7 @@ class Jogar(object):
     def __init__(self, janela):
         self.janela = janela
         self.pontuacao = 0
+        self.tempo = 0
         self.nivel = 1
         self.FPS = 0
         self.fpsAtual = 0
@@ -19,7 +20,6 @@ class Jogar(object):
         self.jogador = Jogador(self.janela)
         self.inimigos = Inimigos(self.janela, self.nivel)
         self.vivo = True
-
         self.gameOverImg = Sprite("assets/game_over.png")
         self.gameOverImg.set_position(self.janela.width/2 - self.gameOverImg.width/2, self.janela.height/2 - self.gameOverImg.height/2)
 
@@ -28,6 +28,7 @@ class Jogar(object):
             for j in range(len(self.inimigos.matrizInimigos[i])):
                 for k in range(len(self.jogador.listaTiros)):
                     if(Collision.collided(self.jogador.listaTiros[k], self.inimigos.matrizInimigos[i][j])):
+                        self.pontuacao += 50 + 50 / self.tempo
                         self.inimigos.matrizInimigos[i].pop(j)
                         self.jogador.listaTiros.pop(k)
                         if(len(self.inimigos.matrizInimigos[i])) == 0:
@@ -35,7 +36,15 @@ class Jogar(object):
                         self.inimigos.quantidadeInimigos -= 1
                         return
 
+    def reset(self):
+        self.nivel = 1
+        self.pontuacao = 0
+        self.vivo = 1
+        self.inimigos = Inimigos(self.janela, self.nivel)
+        self.jogador = Jogador(self.janela)
+
     def passarNivel(self):
+        self.pontuacao += self.nivel * 1000
         self.nivel += 1
         self.inimigos.quantidadeColunas += globals.DIFICULDADE
         self.inimigos.quantidadeLinhas += globals.DIFICULDADE
@@ -43,13 +52,16 @@ class Jogar(object):
             self.inimigos.quantidadeColunas = int(self.janela.width/60 - 1)
         if self.inimigos.quantidadeLinhas > self.janela.height/60 - 2:
             self.inimigos.quantidadeLinhas = int(self.janela.height/60-2)
+        self.jogador.listaTiros.clear()
+        self.inimigos.listaTiros.clear()
+        self.tempo = 0
         self.inimigos.spawn()
         self.inimigos.quantidadeInimigos = self.inimigos.quantidadeColunas * self.inimigos.quantidadeLinhas
 
     def checarGameOverY(self):
         for i in range(len(self.inimigos.matrizInimigos)):
             for j in range(len(self.inimigos.matrizInimigos[i])):
-                if (self.inimigos.matrizInimigos[i][j].y >= self.jogador.player.y):
+                if (self.inimigos.matrizInimigos[i][j].y + self.inimigos.matrizInimigos[i][j].height >= self.jogador.player.y):
                     return True
         return False
 
@@ -63,9 +75,9 @@ class Jogar(object):
     def gameOver(self):
         if(self.teclado.key_pressed("ESC")):
             globals.GAME_STATE = 1
-            self.vivo = 1
+            self.reset()
         self.gameOverImg.draw()
-        self.janela.draw_text(str(self.pontuacao) + " Pontos", self.janela.width/2 - 80, self.janela.height/2 + self.gameOverImg.height, size=40, color=(255,255,255), font_name="Minecraft")
+        self.janela.draw_text(str(int(self.pontuacao)) + " Pontos", self.janela.width/2 - 80, self.janela.height/2 + self.gameOverImg.height, size=40, color=(255,255,255), font_name="Minecraft")
 
     def run(self):
         self.cronometroFPS += self.janela.delta_time()
@@ -83,16 +95,18 @@ class Jogar(object):
             self.colisaoTiroInimigo()
             self.colisaoTiroPlayer()
 
+            self.tempo += self.janela.delta_time()
+
             #Desenhando textos
             self.janela.draw_text("Vidas: " + str(self.jogador.vidas), 150, 5, size=28, color=(255,255,255), font_name="Minecraft")
             self.janela.draw_text(str(self.fpsAtual), 0, 0, size=12, color=(255,255,255))
             self.janela.draw_text("Nivel: " + str(self.nivel), 280, 5, size=28, color=(255,255,255), font_name="Minecraft")
+            self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), 450, 5, size=28, color=(255,255,255), font_name="Minecraft")
+
             
             if(self.teclado.key_pressed("ESC")):
-                self.nivel = 1
-                self.inimigos = Inimigos(self.janela, self.nivel)
-                self.jogador = Jogador(self.janela)
                 globals.GAME_STATE = 1
+                self.reset()
 
             if self.checarGameOverY() or self.jogador.vidas == 0:
                 self.nivel = 1
