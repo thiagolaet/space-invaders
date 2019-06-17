@@ -3,6 +3,7 @@ from PPlay.sprite import *
 from PPlay.gameimage import *
 from PPlay.gameobject import *
 from PPlay.collision import *
+from PPlay.animation import *
 from actors import Jogador, Inimigos
 import globals
 import random
@@ -22,6 +23,10 @@ class Jogar(object):
         self.vivo = True
         self.gameOverImg = Sprite("assets/game_over.png")
         self.gameOverImg.set_position(self.janela.width/2 - self.gameOverImg.width/2, self.janela.height/2 - self.gameOverImg.height/2)
+        
+        self.playerDead = Animation("assets/jogo_jogador-respawn.png", 12)
+        self.playerDead.set_total_duration(1000)
+        self.cronometroMorte = 1
 
     def colisaoTiroInimigo(self):
         for i in range(len(self.inimigos.matrizInimigos)):
@@ -42,6 +47,7 @@ class Jogar(object):
         self.vivo = 1
         self.inimigos = Inimigos(self.janela, self.nivel)
         self.jogador = Jogador(self.janela)
+        self.cronometroMorte = 1
 
     def passarNivel(self):
         self.pontuacao += self.nivel * 1000
@@ -70,7 +76,14 @@ class Jogar(object):
             if Collision.collided(self.inimigos.listaTiros[i], self.jogador.player):
                 self.jogador.vidas -= 1
                 self.inimigos.listaTiros.pop(i)
+                self.respawn()
+                self.cronometroMorte = 0
                 break
+
+    def respawn(self):            
+        self.playerDead.set_curr_frame(0)
+        self.playerDead.set_position(self.jogador.player.x, self.jogador.player.y)
+        self.jogador.player.set_position(self.janela.width/2 - self.jogador.player.width/2, self.janela.height - 50)
     
     def gameOver(self):
         if(self.teclado.key_pressed("ESC")):
@@ -113,6 +126,11 @@ class Jogar(object):
                 self.inimigos = Inimigos(self.janela, self.nivel)
                 self.jogador = Jogador(self.janela)
                 self.vivo = False
+            
+            if self.cronometroMorte < 0.9:
+                self.playerDead.draw()
+                self.playerDead.update()
+                self.cronometroMorte += self.janela.delta_time()
 
         else:
             self.gameOver()
