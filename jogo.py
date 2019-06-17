@@ -121,12 +121,17 @@ class Jogar(object):
             if self.checarGameOverY() or self.jogador.vidas == 0:
                 self.nivel = 1
                 self.vivo = False
+
+            #Desenhando textos
+            self.janela.draw_text("Vidas: " + str(self.jogador.vidas), 150, 5, size=28, color=(255,255,255), font_name="Minecraft")
+            self.janela.draw_text(str(self.fpsAtual), 0, 0, size=12, color=(255,255,255))
+            self.janela.draw_text("Nivel: " + str(self.nivel), 280, 5, size=28, color=(255,255,255), font_name="Minecraft")
+            self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), 450, 5, size=28, color=(255,255,255), font_name="Minecraft")
             
             
 
         else:
             self.gameOver()
-            self.inimigos._draw()
 
         #Animação quando morre
         if self.cronometroMorte < 0.9:
@@ -134,11 +139,7 @@ class Jogar(object):
                 self.playerDead.update()
                 self.cronometroMorte += self.janela.delta_time()
 
-        #Desenhando textos
-        self.janela.draw_text("Vidas: " + str(self.jogador.vidas), 150, 5, size=28, color=(255,255,255), font_name="Minecraft")
-        self.janela.draw_text(str(self.fpsAtual), 0, 0, size=12, color=(255,255,255))
-        self.janela.draw_text("Nivel: " + str(self.nivel), 280, 5, size=28, color=(255,255,255), font_name="Minecraft")
-        self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), 450, 5, size=28, color=(255,255,255), font_name="Minecraft")
+
 
 
 
