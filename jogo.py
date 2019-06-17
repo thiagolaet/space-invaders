@@ -44,7 +44,7 @@ class Jogar(object):
     def reset(self):
         self.nivel = 1
         self.pontuacao = 0
-        self.vivo = 1
+        self.vivo = True
         self.inimigos = Inimigos(self.janela, self.nivel)
         self.jogador = Jogador(self.janela)
         self.cronometroMorte = 1
@@ -54,6 +54,7 @@ class Jogar(object):
         self.nivel += 1
         self.inimigos.quantidadeColunas += globals.DIFICULDADE
         self.inimigos.quantidadeLinhas += globals.DIFICULDADE
+        self.inimigos.direcaoInimigos = 1
         if self.inimigos.quantidadeColunas > self.janela.width/60 - 1:
             self.inimigos.quantidadeColunas = int(self.janela.width/60 - 1)
         if self.inimigos.quantidadeLinhas > self.janela.height/60 - 2:
@@ -76,18 +77,21 @@ class Jogar(object):
             if Collision.collided(self.inimigos.listaTiros[i], self.jogador.player):
                 self.jogador.vidas -= 1
                 self.inimigos.listaTiros.pop(i)
-                self.respawn()
                 self.cronometroMorte = 0
+                self.playerDead.set_curr_frame(0)
+                self.playerDead.set_position(self.jogador.player.x, self.jogador.player.y)
+                if self.jogador.vidas != 0:
+                    self.respawn()
                 break
 
     def respawn(self):            
-        self.playerDead.set_curr_frame(0)
-        self.playerDead.set_position(self.jogador.player.x, self.jogador.player.y)
         self.jogador.player.set_position(self.janela.width/2 - self.jogador.player.width/2, self.janela.height - 50)
     
     def gameOver(self):
         if(self.teclado.key_pressed("ESC")):
             globals.GAME_STATE = 1
+            self.inimigos = Inimigos(self.janela, self.nivel)
+            self.jogador = Jogador(self.janela)
             self.reset()
         self.gameOverImg.draw()
         self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), self.janela.width/2 - 120, self.janela.height/2 + self.gameOverImg.height, size=40, color=(255,255,255), font_name="Minecraft")
@@ -109,13 +113,6 @@ class Jogar(object):
             self.colisaoTiroPlayer()
 
             self.tempo += self.janela.delta_time()
-
-            #Desenhando textos
-            self.janela.draw_text("Vidas: " + str(self.jogador.vidas), 150, 5, size=28, color=(255,255,255), font_name="Minecraft")
-            self.janela.draw_text(str(self.fpsAtual), 0, 0, size=12, color=(255,255,255))
-            self.janela.draw_text("Nivel: " + str(self.nivel), 280, 5, size=28, color=(255,255,255), font_name="Minecraft")
-            self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), 450, 5, size=28, color=(255,255,255), font_name="Minecraft")
-
             
             if(self.teclado.key_pressed("ESC")):
                 globals.GAME_STATE = 1
@@ -123,17 +120,25 @@ class Jogar(object):
 
             if self.checarGameOverY() or self.jogador.vidas == 0:
                 self.nivel = 1
-                self.inimigos = Inimigos(self.janela, self.nivel)
-                self.jogador = Jogador(self.janela)
                 self.vivo = False
             
-            if self.cronometroMorte < 0.9:
+            
+
+        else:
+            self.gameOver()
+            self.inimigos._draw()
+
+        #Animação quando morre
+        if self.cronometroMorte < 0.9:
                 self.playerDead.draw()
                 self.playerDead.update()
                 self.cronometroMorte += self.janela.delta_time()
 
-        else:
-            self.gameOver()
+        #Desenhando textos
+        self.janela.draw_text("Vidas: " + str(self.jogador.vidas), 150, 5, size=28, color=(255,255,255), font_name="Minecraft")
+        self.janela.draw_text(str(self.fpsAtual), 0, 0, size=12, color=(255,255,255))
+        self.janela.draw_text("Nivel: " + str(self.nivel), 280, 5, size=28, color=(255,255,255), font_name="Minecraft")
+        self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), 450, 5, size=28, color=(255,255,255), font_name="Minecraft")
 
 
 
