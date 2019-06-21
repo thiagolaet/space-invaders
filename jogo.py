@@ -87,14 +87,24 @@ class Jogar(object):
     def respawn(self):            
         self.jogador.player.set_position(self.janela.width/2 - self.jogador.player.width/2, self.janela.height - 50)
     
-    def gameOver(self):
-        if(self.teclado.key_pressed("ESC")):
-            globals.GAME_STATE = 1
-            self.inimigos = Inimigos(self.janela, self.nivel)
-            self.jogador = Jogador(self.janela)
-            self.reset()
+    def gameOver(self):            
         self.gameOverImg.draw()
         self.janela.draw_text("Pontos: " + str(int(self.pontuacao)), self.janela.width/2 - 120, self.janela.height/2 + self.gameOverImg.height, size=40, color=(255,255,255), font_name="Minecraft")
+        nome=str(input('Digite o nome: '))
+        arq = open('ranking.txt','r')
+        conteudo = arq.readlines()
+        linha = nome + ' ' + str(globals.DIFICULDADE) + ' ' + str(int(self.pontuacao)) + '\n'
+        conteudo.append(linha)
+        arq.close()
+        arq = open('ranking.txt', 'w')
+        arq.writelines(conteudo)
+        arq.close()
+        print('Pontuacao armazenada com sucesso')
+        self.inimigos = Inimigos(self.janela, self.nivel)
+        self.jogador = Jogador(self.janela)
+        self.reset()
+        globals.GAME_STATE = 1
+
 
     def run(self):
         self.cronometroFPS += self.janela.delta_time()
