@@ -86,7 +86,8 @@ class Inimigos(object):
     def moverInimigos(self):
         #Atualizando velocidade dos inimigos
         if self.quantidadeInimigos > 0:
-            self.velocidadeInimigos =  self.janela.delta_time() * self.direcaoInimigos + self.direcaoInimigos * globals.DIFICULDADE/2 + self.direcaoInimigos * 3/self.quantidadeInimigos
+            self.velocidadeInimigos =  (self.janela.delta_time() * globals.FRAME_PER_SECOND) * self.direcaoInimigos + self.direcaoInimigos * globals.DIFICULDADE/2 + self.direcaoInimigos * 3 / self.quantidadeInimigos
+            print(self.velocidadeInimigos)
         for i in range(len(self.matrizInimigos)):
             for j in range(len(self.matrizInimigos[i])):
                 self.matrizInimigos[i][j].move_x(self.velocidadeInimigos)

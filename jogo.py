@@ -52,8 +52,8 @@ class Jogar(object):
     def passarNivel(self):
         self.pontuacao += self.nivel * 1000
         self.nivel += 1
-        self.inimigos.quantidadeColunas += globals.DIFICULDADE
-        self.inimigos.quantidadeLinhas += globals.DIFICULDADE
+        self.inimigos.quantidadeColunas += 1
+        self.inimigos.quantidadeLinhas += 1
         self.inimigos.direcaoInimigos = 1
         if self.inimigos.quantidadeColunas > self.janela.width/60 - 1:
             self.inimigos.quantidadeColunas = int(self.janela.width/60 - 1)
